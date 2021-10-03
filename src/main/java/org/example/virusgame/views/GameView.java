@@ -37,7 +37,7 @@ public class GameView {
     public int[] reqestTurn(GameRole gameRole) {
         while (true) {
             try {
-                System.out.print("Your turn (row line): ");
+                System.out.print("Your turn (column row): ");
                 var row = scanner.nextInt();
                 var line = scanner.nextInt();
                 this.gameModel.makeTurn(row, line, gameRole);
@@ -56,10 +56,10 @@ public class GameView {
     public void updateGameField() {
         var gameField = gameModel.getGameField();
         System.out.print("\033[H\033[2J");
-        for (var line = 0; line < GameModel.FIELD_LENGTH; line++) {
-            System.out.printf("%d│", line);
-            for (var row = 0; row < GameModel.FIELD_LENGTH; row++) {
-                switch (gameField[row][line]) {
+        for (var row = 0; row < GameModel.FIELD_LENGTH; row++) {
+            System.out.printf("%d│", row);
+            for (var column = 0; column < GameModel.FIELD_LENGTH; column++) {
+                switch (gameField[column][row]) {
                     case EMPTY -> {
                         System.out.print(" ");
                     }

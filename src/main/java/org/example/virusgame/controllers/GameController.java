@@ -21,7 +21,7 @@ public class GameController {
 
     private Socket socket;
     private InetAddress serverAddress;
-    private final int serverPort = 8080;
+    private final int serverPort = 5020;
 
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;

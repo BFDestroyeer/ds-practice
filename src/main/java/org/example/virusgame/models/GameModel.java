@@ -13,62 +13,62 @@ public class GameModel {
         }
     }
 
-    public void makeTurn(int row, int line, GameRole gameRole) throws IllegalArgumentException {
-        if ((row < 0) || (row > (FIELD_LENGTH - 1)) || (line < 0) || (line > (FIELD_LENGTH - 1))) {
+    public void makeTurn(int column, int row, GameRole gameRole) throws IllegalArgumentException {
+        if ((column < 0) || (column > (FIELD_LENGTH - 1)) || (row < 0) || (row > (FIELD_LENGTH - 1))) {
             throw new IllegalArgumentException("Illegal turn");
         }
-        if (!isCellAvailable(row, line, gameRole)) {
+        if (!isCellAvailable(column, row, gameRole)) {
             throw new IllegalArgumentException("Illegal turn");
         }
         if (gameRole == GameRole.SERVER) {
-            if (gameField[row][line] == CellStatus.EMPTY) {
-                this.gameField[row][line] = CellStatus.SERVER_ALIVE;
-            } else if (gameField[row][line] == CellStatus.CLIENT_ALIVE) {
-                this.gameField[row][line] = CellStatus.CLIENT_KILLED;
+            if (gameField[column][row] == CellStatus.EMPTY) {
+                this.gameField[column][row] = CellStatus.SERVER_ALIVE;
+            } else if (gameField[column][row] == CellStatus.CLIENT_ALIVE) {
+                this.gameField[column][row] = CellStatus.CLIENT_KILLED;
             }
         } else if (gameRole == GameRole.CLIENT) {
-            if (gameField[row][line] == CellStatus.EMPTY) {
-                this.gameField[row][line] = CellStatus.CLIENT_ALIVE;
-            } else if (gameField[row][line] == CellStatus.SERVER_ALIVE) {
-                this.gameField[row][line] = CellStatus.SERVER_KILLED;
+            if (gameField[column][row] == CellStatus.EMPTY) {
+                this.gameField[column][row] = CellStatus.CLIENT_ALIVE;
+            } else if (gameField[column][row] == CellStatus.SERVER_ALIVE) {
+                this.gameField[column][row] = CellStatus.SERVER_KILLED;
             }
         }
     }
 
-    private boolean isCellAvailable(int row, int line, GameRole gameRole) {
+    private boolean isCellAvailable(int column, int row, GameRole gameRole) {
         if (gameRole == GameRole.SERVER
-                && this.gameField[row][line] != CellStatus.EMPTY
-                && this.gameField[row][line] != CellStatus.CLIENT_ALIVE) {
+                && this.gameField[column][row] != CellStatus.EMPTY
+                && this.gameField[column][row] != CellStatus.CLIENT_ALIVE) {
             return false;
         }
         if (gameRole == GameRole.CLIENT
-                && this.gameField[row][line] != CellStatus.EMPTY
-                && this.gameField[row][line] != CellStatus.SERVER_ALIVE) {
+                && this.gameField[column][row] != CellStatus.EMPTY
+                && this.gameField[column][row] != CellStatus.SERVER_ALIVE) {
             return false;
         }
 
-        if (row == 0 && line == 0
+        if (column == 0 && row == 0
                 && gameRole == GameRole.SERVER
-                && this.gameField[row][line] == CellStatus.EMPTY) {
+                && this.gameField[column][row] == CellStatus.EMPTY) {
             return true;
-        } else if ((row != 0 || line != 0)
+        } else if ((column != 0 || row != 0)
                 && gameRole == GameRole.SERVER
                 && this.gameField[0][0] == CellStatus.EMPTY) {
             return false;
         }
 
-        if (row == (FIELD_LENGTH - 1) && line == (FIELD_LENGTH - 1)
+        if (column == (FIELD_LENGTH - 1) && row == (FIELD_LENGTH - 1)
                 && gameRole == GameRole.CLIENT
-                && this.gameField[row][line] == CellStatus.EMPTY) {
+                && this.gameField[column][row] == CellStatus.EMPTY) {
             return true;
-        } else if ((row != (FIELD_LENGTH - 1) || line != (FIELD_LENGTH - 1))
+        } else if ((column != (FIELD_LENGTH - 1) || row != (FIELD_LENGTH - 1))
                 && gameRole == GameRole.CLIENT
                 && this.gameField[(FIELD_LENGTH - 1)][(FIELD_LENGTH - 1)] == CellStatus.EMPTY) {
             return false;
         }
 
-        for (var i = Math.max(0, row - 1); i < Math.min(FIELD_LENGTH, row + 2); i++) {
-            for (var j = Math.max(0, line - 1); j < Math.min(FIELD_LENGTH, line + 2); j++) {
+        for (var i = Math.max(0, column - 1); i < Math.min(FIELD_LENGTH, column + 2); i++) {
+            for (var j = Math.max(0, row - 1); j < Math.min(FIELD_LENGTH, row + 2); j++) {
                 if (gameRole == GameRole.SERVER && ((this.gameField[i][j] == CellStatus.SERVER_ALIVE)
                         || (this.gameField[i][j] == CellStatus.CLIENT_KILLED))) {
                     return true;
