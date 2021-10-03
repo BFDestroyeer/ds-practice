@@ -55,12 +55,11 @@ public class GameView {
 
     public void updateGameField() {
         var gameField = gameModel.getGameField();
-        var lineNumber = 0;
-        for (var line : gameField) {
-            System.out.printf("%d│", lineNumber);
-            lineNumber += 1;
-            for (var cell : line) {
-                switch (cell) {
+        System.out.print("\033[H\033[2J");
+        for (var line = 0; line < GameModel.FIELD_LENGTH; line++) {
+            System.out.printf("%d│", line);
+            for (var row = 0; row < GameModel.FIELD_LENGTH; row++) {
+                switch (gameField[row][line]) {
                     case EMPTY -> {
                         System.out.print(" ");
                     }

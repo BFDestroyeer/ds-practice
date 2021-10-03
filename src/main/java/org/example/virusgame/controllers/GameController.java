@@ -42,6 +42,7 @@ public class GameController {
         try {
             gameView.updateGameField();
             if (this.gameRole == GameRole.CLIENT) {
+                this.gameView.showMessage("Wait for turns...");
                 readTurns();
                 gameView.updateGameField();
             }
@@ -52,6 +53,7 @@ public class GameController {
                     dataOutputStream.writeInt(turn[0]);
                     dataOutputStream.writeInt(turn[1]);
                 }
+                this.gameView.showMessage("Wait for turns...");
                 readTurns();
                 gameView.updateGameField();
             }
