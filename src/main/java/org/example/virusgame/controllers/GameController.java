@@ -17,6 +17,7 @@ public class GameController {
     private final GameView gameView ;
 
     private GameRole gameRole;
+    private GameRole oppositeGameRole;
 
     private Socket socket;
     private InetAddress serverAddress;
@@ -33,18 +34,23 @@ public class GameController {
     public void start() {
         this.gameRole = gameView.requestGameRole();
         if (gameRole == GameRole.SERVER) {
+            this.oppositeGameRole = GameRole.CLIENT;
             startServer();
         } else if (gameRole == GameRole.CLIENT) {
+            this.oppositeGameRole = GameRole.SERVER;
             this.serverAddress = gameView.requestServerIp();
             connectToServer();
         }
 
+        var victoryCheckEnabled = false;
         try {
             gameView.updateGameField();
             if (this.gameRole == GameRole.CLIENT) {
-                this.gameView.showMessage("Wait for turns...");
-                readTurns();
+                for (var i = 0; i < 3; i++) {
+                    readTurn();
+                }
                 gameView.updateGameField();
+                victoryCheckEnabled = true;
             }
             while (true) {
                 for (var i = 0; i < 3; i++) {
@@ -52,9 +58,21 @@ public class GameController {
                     gameView.updateGameField();
                     dataOutputStream.writeInt(turn[0]);
                     dataOutputStream.writeInt(turn[1]);
+                    if (this.gameModel.isPlayerVictory(this.gameRole) && victoryCheckEnabled) {
+                        this.gameView.showMessage("You WIN!!!");
+                        return;
+                    }
                 }
+                victoryCheckEnabled = true;
                 this.gameView.showMessage("Wait for turns...");
-                readTurns();
+                for (var i = 0; i < 3; i++) {
+                    readTurn();
+                    if (this.gameModel.isPlayerVictory(this.oppositeGameRole)) {
+                        gameView.updateGameField();
+                        this.gameView.showMessage("You LOSE!!!");
+                        return;
+                    }
+                }
                 gameView.updateGameField();
             }
         } catch (IOException exception) {
@@ -62,16 +80,10 @@ public class GameController {
         }
     }
 
-    private void readTurns() throws IOException {
-        for (var i = 0; i < 3; i++) {
-            var row = dataInputStream.readInt();
-            var line = dataInputStream.readInt();
-            if (gameRole == GameRole.SERVER) {
-                gameModel.makeTurn(row, line, GameRole.CLIENT);
-            } else if (gameRole == GameRole.CLIENT) {
-                gameModel.makeTurn(row, line, GameRole.SERVER);
-            }
-        }
+    private void readTurn() throws IOException {
+        var row = dataInputStream.readInt();
+        var line = dataInputStream.readInt();
+        gameModel.makeTurn(row, line, this.oppositeGameRole);
     }
 
     private void connectToServer() {

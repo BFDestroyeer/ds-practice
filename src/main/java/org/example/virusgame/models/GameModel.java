@@ -81,8 +81,20 @@ public class GameModel {
         return false;
     }
 
+    public boolean isPlayerVictory(GameRole gameRole) {
+        for (var line : gameField) {
+            for (var cell : line) {
+                if (gameRole == GameRole.SERVER && cell == CellStatus.CLIENT_ALIVE) {
+                    return false;
+                } else if (gameRole == GameRole.CLIENT && cell == CellStatus.SERVER_ALIVE) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public CellStatus[][] getGameField() {
         return  gameField;
     }
-
 }
