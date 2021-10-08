@@ -2,6 +2,7 @@ package org.example.virusgame.views;
 
 import org.example.virusgame.models.GameModel;
 import org.example.virusgame.models.GameRole;
+import org.example.virusgame.models.GameTurn;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,19 +35,24 @@ public class GameView {
         }
     }
 
-    public int[] reqestTurn(GameRole gameRole) {
+    public GameTurn makeTurn(GameRole gameRole, boolean canSkip) {
         while (true) {
             try {
                 System.out.print("Your turn (column row): ");
-                var row = scanner.nextInt();
-                var line = scanner.nextInt();
-                this.gameModel.makeTurn(row, line, gameRole);
-                return new int[] {row, line};
-            } catch (IllegalArgumentException exception) {
+                var line = this.scanner.nextLine();
+                if (line.isEmpty() && canSkip) {
+                    return new GameTurn(null, null);
+                } else if (line.isEmpty()) {
+                    throw new IllegalArgumentException();
+                }
+                var lineParts = line.split(" ");
+                var gameTurn =  new GameTurn(Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]));
+                gameModel.makeTurn(gameTurn.getColumn(), gameTurn.getRow(), gameRole);
+                return gameTurn;
+            } catch (IllegalArgumentException | IndexOutOfBoundsException exception) {
                 System.out.println("Illegal turn, try again");
             }
         }
-
     }
 
     public void showMessage(String message) {

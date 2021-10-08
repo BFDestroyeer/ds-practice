@@ -2,6 +2,7 @@ package org.example.virusgame.controllers;
 
 import org.example.virusgame.models.GameModel;
 import org.example.virusgame.models.GameRole;
+import org.example.virusgame.models.GameTurn;
 import org.example.virusgame.views.GameView;
 
 import java.io.DataInputStream;
@@ -26,6 +27,13 @@ public class GameController {
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
+    private boolean lastTurnIsSkip = false;
+    private boolean lastOppositeTurnIsSkip = false;
+
+    private boolean victoryCheckEnabled = false;
+    private boolean isWin = false;
+    private boolean isLose = false;
+
     public GameController() {
         this.gameModel = new GameModel();
         this.gameView = new GameView(this.gameModel);
@@ -42,36 +50,33 @@ public class GameController {
             connectToServer();
         }
 
-        var victoryCheckEnabled = false;
         try {
             gameView.updateGameField();
             if (this.gameRole == GameRole.CLIENT) {
-                for (var i = 0; i < 3; i++) {
-                    readTurn();
-                }
-                gameView.updateGameField();
+                this.readTurns();
                 victoryCheckEnabled = true;
             }
             while (true) {
-                for (var i = 0; i < 3; i++) {
-                    var turn = gameView.reqestTurn(this.gameRole);
-                    gameView.updateGameField();
-                    dataOutputStream.writeInt(turn[0]);
-                    dataOutputStream.writeInt(turn[1]);
-                    if (this.gameModel.isPlayerVictory(this.gameRole) && victoryCheckEnabled) {
-                        this.gameView.showMessage("You WIN!!!");
-                        return;
-                    }
+                this.makeTurns();
+                if (this.lastTurnIsSkip && this.lastOppositeTurnIsSkip) {
+                    this.gameView.showMessage("DRAW");
+                    return;
+                }
+                if (isWin && victoryCheckEnabled) {
+                    this.gameView.showMessage("You WIN");
+                    return;
                 }
                 victoryCheckEnabled = true;
+
                 this.gameView.showMessage("Wait for turns...");
-                for (var i = 0; i < 3; i++) {
-                    readTurn();
-                    if (this.gameModel.isPlayerVictory(this.oppositeGameRole)) {
-                        gameView.updateGameField();
-                        this.gameView.showMessage("You LOSE!!!");
-                        return;
-                    }
+                readTurns();
+                if (this.lastTurnIsSkip && this.lastOppositeTurnIsSkip) {
+                    this.gameView.showMessage("DRAW");
+                    return;
+                }
+                if (this.isLose) {
+                    this.gameView.showMessage("You LOSE");
+                    return;
                 }
                 gameView.updateGameField();
             }
@@ -80,10 +85,56 @@ public class GameController {
         }
     }
 
-    private void readTurn() throws IOException {
-        var row = dataInputStream.readInt();
-        var line = dataInputStream.readInt();
-        gameModel.makeTurn(row, line, this.oppositeGameRole);
+    private void makeTurns() throws IOException {
+        for (var i = 0; i < 3; i++) {
+            GameTurn gameTurn;
+            if (i == 0) {
+                gameTurn = gameView.makeTurn(this.gameRole, true);
+            } else {
+                gameTurn = gameView.makeTurn(this.gameRole, false);
+            }
+
+            dataOutputStream.writeUTF(gameTurn.toString());
+            if (!gameTurn.isSkipTurn()) {
+                gameView.updateGameField();
+                this.lastTurnIsSkip = false;
+                this.isWin = this.gameModel.isPlayerVictory(this.gameRole);
+                if (this.isWin && this.victoryCheckEnabled) {
+                    return;
+                }
+            } else {
+                gameView.showMessage(gameRole.toString() + " skip");
+                this.lastTurnIsSkip = true;
+                this.isWin = this.gameModel.isPlayerVictory(this.gameRole);
+                if (this.isWin && this.victoryCheckEnabled) {
+                    return;
+                }
+                break;
+            }
+        }
+    }
+
+    private void readTurns() throws IOException {
+        for (var i = 0; i < 3; i++) {
+            var gameTurn = new GameTurn(this.dataInputStream.readUTF());
+            if (!gameTurn.isSkipTurn()) {
+                gameModel.makeTurn(gameTurn.getColumn(), gameTurn.getRow(), this.oppositeGameRole);
+                gameView.updateGameField();
+                this.lastOppositeTurnIsSkip = false;
+                this.isLose = this.gameModel.isPlayerVictory(this.oppositeGameRole);
+                if (this.isLose && this.victoryCheckEnabled) {
+                    return;
+                }
+            } else {
+                gameView.showMessage(oppositeGameRole.toString() + " skip");
+                this.lastOppositeTurnIsSkip = true;
+                this.isLose = this.gameModel.isPlayerVictory(this.oppositeGameRole);
+                if (this.isLose && this.victoryCheckEnabled) {
+                    return;
+                }
+                break;
+            }
+        }
     }
 
     private void connectToServer() {
@@ -107,9 +158,5 @@ public class GameController {
         } catch (IOException exception) {
             System.out.print(exception.getMessage());
         }
-    }
-
-    private void makeTurn() {
-
     }
 }
