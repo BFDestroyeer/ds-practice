@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package pizzeria;
+
+option java_multiple_files = true;
+option java_package = "edu.bfdestroyeer.pizzeria";
+option java_outer_classname = "PizzeriaServiceProto";
+
+message IdResponse {
+  int64 id = 1;
+}
+
+message StatusReponse {
+  int64 status = 1;
+}
+
+message AddPizzaToMenuRequest {
+  string name = 1;
+  string description = 2;
+  int64 cost = 3;
+}
+
+message RemovePizzaFromMenuRequest {
+  int64 id = 1;
+}
+
+message MenuResponse {
+  message MenuElement {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    int64 cost = 4;
+  }
+  repeated MenuElement menuElement = 1;
+}
+
+service PizzeriaService {
+  rpc addPizzaToMenu(AddPizzaToMenuRequest) returns (IdResponse);
+  rpc removePizzaFromMenu(RemovePizzaFromMenuRequest) returns (StatusReponse);
+  rpc getMenu(google.protobuf.Empty) returns (MenuResponse);
+}

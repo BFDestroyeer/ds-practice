@@ -1,4 +1,4 @@
-package org.example.virusgame.models;
+package edu.bfdestroyeer.virusgame.models;
 
 import java.util.Arrays;
 

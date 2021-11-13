@@ -1,8 +1,8 @@
-package org.example.virusgame.views;
+package edu.bfdestroyeer.virusgame.views;
 
-import org.example.virusgame.models.GameModel;
-import org.example.virusgame.models.GameRole;
-import org.example.virusgame.models.GameTurn;
+import edu.bfdestroyeer.virusgame.models.GameModel;
+import edu.bfdestroyeer.virusgame.models.GameRole;
+import edu.bfdestroyeer.virusgame.models.GameTurn;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -1,9 +1,9 @@
-package org.example.virusgame.controllers;
+package edu.bfdestroyeer.virusgame.controllers;
 
-import org.example.virusgame.models.GameModel;
-import org.example.virusgame.models.GameRole;
-import org.example.virusgame.models.GameTurn;
-import org.example.virusgame.views.GameView;
+import edu.bfdestroyeer.virusgame.models.GameModel;
+import edu.bfdestroyeer.virusgame.models.GameRole;
+import edu.bfdestroyeer.virusgame.models.GameTurn;
+import edu.bfdestroyeer.virusgame.views.GameView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

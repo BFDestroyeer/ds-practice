@@ -1,6 +1,6 @@
-package org.example.virusgame;
+package edu.bfdestroyeer.virusgame;
 
-import org.example.virusgame.controllers.GameController;
+import edu.bfdestroyeer.virusgame.controllers.GameController;
 
 public class VirusGame {
     public static void main(String[] args) {

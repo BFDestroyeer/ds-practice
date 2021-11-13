@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>ds-practice</artifactId>
+    <groupId>edu.bfdestroyeer</groupId>
+    <artifactId>lab01-virus-game</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -25,7 +25,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.example.virusgame.VirusGame</mainClass>
+                            <mainClass>edu.bfdestroyeer.virusgame.VirusGame</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

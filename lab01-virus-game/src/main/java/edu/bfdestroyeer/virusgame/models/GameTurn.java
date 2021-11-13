@@ -1,4 +1,4 @@
-package org.example.virusgame.models;
+package edu.bfdestroyeer.virusgame.models;
 
 public class GameTurn {
     private int column = 0;
