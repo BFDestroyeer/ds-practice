@@ -16,16 +16,6 @@ message StatusReponse {
   int64 status = 1;
 }
 
-message AddPizzaToMenuRequest {
-  string name = 1;
-  string description = 2;
-  int64 cost = 3;
-}
-
-message RemovePizzaFromMenuRequest {
-  int64 id = 1;
-}
-
 message MenuResponse {
   message MenuElement {
     int64 id = 1;
@@ -36,8 +26,47 @@ message MenuResponse {
   repeated MenuElement menuElement = 1;
 }
 
+message OrderResponse {
+  int64 id = 1;
+  int64 cost = 2;
+}
+
+message OrderStatusResponse {
+  int32 orderStatus = 1;
+}
+
+message AddPizzaToMenuRequest {
+  string name = 1;
+  string description = 2;
+  int64 cost = 3;
+}
+
+message RemovePizzaFromMenuRequest {
+  int64 id = 1;
+}
+
+message MakeOrderRequest {
+  message OrderPosition {
+    int64 pizzaId = 1;
+    int64 count = 2;
+  }
+  repeated OrderPosition orderPosition = 1;
+}
+
+message UpdateOrderStatusRequest {
+  int64 orderId = 1;
+  int32 orderStatus = 2;
+}
+
+message GetOrderStatusRequest {
+  int64 orderId = 1;
+}
+
 service PizzeriaService {
   rpc addPizzaToMenu(AddPizzaToMenuRequest) returns (IdResponse);
   rpc removePizzaFromMenu(RemovePizzaFromMenuRequest) returns (StatusReponse);
   rpc getMenu(google.protobuf.Empty) returns (MenuResponse);
+  rpc makeOrder(MakeOrderRequest) returns (OrderResponse);
+  rpc updateOrderStatus(UpdateOrderStatusRequest) returns (google.protobuf.Empty);
+  rpc getOrderStatus(GetOrderStatusRequest) returns (OrderStatusResponse);
 }

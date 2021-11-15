@@ -1,6 +1,8 @@
 package edu.bfdestroyeer.pizzeria;
 
 import com.google.protobuf.Empty;
+import edu.bfdestroyeer.pizzeria.models.Order;
+import edu.bfdestroyeer.pizzeria.models.OrderStatus;
 import edu.bfdestroyeer.pizzeria.models.Pizza;
 import edu.bfdestroyeer.pizzeria.utils.IdGenerator;
 import io.grpc.Server;
@@ -14,6 +16,8 @@ import java.util.Map;
 public class PizzeriaService extends PizzeriaServiceGrpc.PizzeriaServiceImplBase {
     Map<Long, Pizza> menu = new HashMap<>();
     IdGenerator menuIdGenerator = new IdGenerator();
+    Map<Long, Order> orders = new HashMap<>();
+    IdGenerator ordersIdGenerator = new IdGenerator();
 
     @Override
     public void addPizzaToMenu(AddPizzaToMenuRequest request, StreamObserver<IdResponse> responseObserver) {
@@ -35,7 +39,7 @@ public class PizzeriaService extends PizzeriaServiceGrpc.PizzeriaServiceImplBase
     @Override
     public void removePizzaFromMenu(RemovePizzaFromMenuRequest request, StreamObserver<StatusReponse> responseObserver) {
         StatusReponse response;
-        if (menu.remove(request.getId()) == null) {
+        if (menu.remove(request.getId()) != null) {
             response = StatusReponse.newBuilder()
                     .setStatus(0)
                     .build();
@@ -62,6 +66,46 @@ public class PizzeriaService extends PizzeriaServiceGrpc.PizzeriaServiceImplBase
             );
         }
         responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void makeOrder(MakeOrderRequest request, StreamObserver<OrderResponse> responseObserver) {
+        Long orderId = this.ordersIdGenerator.next();
+        Long cost = 0L;
+        orders.put(orderId, new Order());
+        for (MakeOrderRequest.OrderPosition position: request.getOrderPositionList()) {
+            if (this.menu.containsKey(position.getPizzaId())) {
+                cost += position.getCount() * this.menu.get(position.getPizzaId()).getCost();
+            }
+        }
+        OrderResponse response = OrderResponse.newBuilder()
+                .setId(orderId)
+                .setCost(cost)
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void updateOrderStatus(UpdateOrderStatusRequest request, StreamObserver<Empty> responseObserver) {
+        if (this.orders.containsKey(request.getOrderId())) {
+            this.orders.get(request.getOrderId()).setOrderStatus(OrderStatus.values()[request.getOrderStatus()]);
+        }
+        responseObserver.onNext(Empty.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getOrderStatus(GetOrderStatusRequest request, StreamObserver<OrderStatusResponse> responseObserver) {
+        OrderStatus orderStatus = OrderStatus.UNAVAILABLE;
+        if (this.orders.containsKey(request.getOrderId())) {
+            orderStatus = this.orders.get(request.getOrderId()).getOrderStatus();
+        }
+        OrderStatusResponse response = OrderStatusResponse.newBuilder()
+                .setOrderStatus(orderStatus.ordinal())
+                .build();
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 

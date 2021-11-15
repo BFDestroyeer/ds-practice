@@ -1,6 +1,7 @@
 package edu.bfdestroyeer.pizzeria.views;
 
 import edu.bfdestroyeer.pizzeria.models.EmployeesCommand;
+import edu.bfdestroyeer.pizzeria.models.OrderStatus;
 import edu.bfdestroyeer.pizzeria.models.Pizza;
 
 import java.util.Scanner;
@@ -10,11 +11,13 @@ public class EmployeesView {
     Scanner scanner = new Scanner(System.in);
 
     public EmployeesCommand requestCommand() {
-        System.out.println("Enter one of following commands:\n" +
+        System.out.println(
+                "Enter one of following commands:\n" +
                 "ADD - add pizza to menu\n" +
                 "REMOVE - remove pizza from menu\n" +
                 "MENU - show menu\n" +
-                "STATUS - update order status");
+                "STATUS - update order status"
+        );
         while (true) {
             try {
                 return EmployeesCommand.valueOf(scanner.nextLine());
@@ -35,6 +38,20 @@ public class EmployeesView {
     public Long requestPizzaId() {
         System.out.print("Enter pizza id: ");
         return scanner.nextLong();
+    }
+
+    public Long requestOderId() {
+        System.out.print("Order ID: ");
+        return scanner.nextLong();
+    }
+
+    public OrderStatus requestOderStatus() {
+        System.out.print("OrderStatus [NOT_STARTED, COOKING, DELIVERING, DONE]: ");
+        while (true) {
+            try {
+                return OrderStatus.valueOf(scanner.nextLine());
+            } catch (IllegalArgumentException ignore) {}
+        }
     }
 
     public void showAddPizzaSuccessMessage(Long id) {

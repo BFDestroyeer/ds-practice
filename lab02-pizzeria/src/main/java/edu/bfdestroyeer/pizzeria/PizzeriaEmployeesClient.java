@@ -2,6 +2,7 @@ package edu.bfdestroyeer.pizzeria;
 
 import com.google.protobuf.Empty;
 import edu.bfdestroyeer.pizzeria.models.EmployeesCommand;
+import edu.bfdestroyeer.pizzeria.models.OrderStatus;
 import edu.bfdestroyeer.pizzeria.models.Pizza;
 import edu.bfdestroyeer.pizzeria.views.EmployeesView;
 
@@ -42,6 +43,16 @@ public class PizzeriaEmployeesClient extends PizzeriaClient {
                                 element.getCost()
                         );
                     }
+                    break;
+                }
+                case STATUS: {
+                    Long orderId = this.view.requestOderId();
+                    OrderStatus orderStatus = this.view.requestOderStatus();
+                    UpdateOrderStatusRequest request = UpdateOrderStatusRequest.newBuilder()
+                            .setOrderId(orderId)
+                            .setOrderStatus(orderStatus.ordinal())
+                            .build();
+                    this.client.updateOrderStatus(request);
                     break;
                 }
             }
