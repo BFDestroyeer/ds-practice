@@ -109,10 +109,20 @@ public class PizzeriaService extends PizzeriaServiceGrpc.PizzeriaServiceImplBase
         responseObserver.onCompleted();
     }
 
+    private void initialize() {
+        this.menu.put(menuIdGenerator.next(), new Pizza("Peperoni", "Tasty", 500L));
+        this.menu.put(menuIdGenerator.next(), new Pizza("Four-Cheese", "Yummy", 450L));
+        this.menu.put(menuIdGenerator.next(), new Pizza("Hawaiian", "Ew", 550L));
+        this.orders.put(ordersIdGenerator.next(), new Order());
+        this.orders.put(ordersIdGenerator.next(), new Order());
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
+        PizzeriaService pizzeriaService = new PizzeriaService();
+        pizzeriaService.initialize();
         Server server = ServerBuilder
                 .forPort(8080)
-                .addService(new PizzeriaService())
+                .addService(pizzeriaService)
                 .build();
         server.start();
         server.awaitTermination();
