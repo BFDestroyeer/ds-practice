@@ -5,12 +5,8 @@ import edu.bfdestroyeer.virusgame.models.GameRole;
 import edu.bfdestroyeer.virusgame.models.GameTurn;
 import edu.bfdestroyeer.virusgame.views.GameView;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 public class GameController {
 
@@ -24,8 +20,8 @@ public class GameController {
     private InetAddress serverAddress;
     private final int serverPort = 5020;
 
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
+    private ObjectInputStream objectInputStream;
+    private ObjectOutputStream objectOutputStream;
 
     private boolean lastTurnIsSkip = false;
     private boolean lastOppositeTurnIsSkip = false;
@@ -47,7 +43,12 @@ public class GameController {
         } else if (gameRole == GameRole.CLIENT) {
             this.oppositeGameRole = GameRole.SERVER;
             this.serverAddress = gameView.requestServerIp();
-            connectToServer();
+            try {
+                connectToServer();
+            } catch (IOException exception) {
+                this.gameView.showMessage("Server do not respond");
+                return;
+            }
         }
 
         try {
@@ -94,7 +95,7 @@ public class GameController {
                 gameTurn = gameView.makeTurn(this.gameRole, false);
             }
 
-            dataOutputStream.writeUTF(gameTurn.toString());
+            this.objectOutputStream.writeObject(gameTurn);
             if (!gameTurn.isSkipTurn()) {
                 gameView.updateGameField();
                 this.lastTurnIsSkip = false;
@@ -116,7 +117,13 @@ public class GameController {
 
     private void readTurns() throws IOException {
         for (var i = 0; i < 3; i++) {
-            var gameTurn = new GameTurn(this.dataInputStream.readUTF());
+            GameTurn gameTurn;
+            try {
+                gameTurn = (GameTurn) this.objectInputStream.readObject();
+            } catch (ClassNotFoundException exception) {
+                System.out.println(exception.getMessage());
+                throw new IOException();
+            }
             if (!gameTurn.isSkipTurn()) {
                 gameModel.makeTurn(gameTurn.getColumn(), gameTurn.getRow(), this.oppositeGameRole);
                 gameView.updateGameField();
@@ -137,13 +144,15 @@ public class GameController {
         }
     }
 
-    private void connectToServer() {
+    private void connectToServer() throws IOException {
+
+        this.gameView.showMessage("Connecting to server...");
+        this.socket = new Socket();
+        this.socket.connect(new InetSocketAddress(serverAddress, serverPort), 1000);
         try {
-            this.gameView.showMessage("Connecting to server...");
-            this.socket = new Socket(serverAddress, this.serverPort);
-            this.dataInputStream = new DataInputStream(this.socket.getInputStream());
-            this.dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
-        } catch (Exception exception) {
+            this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            this.objectInputStream = new ObjectInputStream(this.socket.getInputStream());
+        } catch (IOException exception) {
             System.out.print(exception.getMessage());
         }
     }
@@ -153,8 +162,8 @@ public class GameController {
             this.gameView.showMessage("Waiting for client...");
             var serverSocket = new ServerSocket(serverPort, 0, null);
             this.socket = serverSocket.accept();
-            this.dataInputStream = new DataInputStream(this.socket.getInputStream());
-            this.dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
+            this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            this.objectInputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException exception) {
             System.out.print(exception.getMessage());
         }

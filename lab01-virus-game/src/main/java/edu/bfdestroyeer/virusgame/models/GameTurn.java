@@ -1,6 +1,8 @@
 package edu.bfdestroyeer.virusgame.models;
 
-public class GameTurn {
+import java.io.Serializable;
+
+public class GameTurn implements Serializable {
     private int column = 0;
     private int row = 0;
     private boolean isSkipTurn = true;
@@ -11,18 +13,6 @@ public class GameTurn {
             this.column = column;
             this.isSkipTurn = false;
         }
-    }
-
-    public GameTurn(String string) {
-        var stringParts = string.split(";");
-        this.row = Integer.parseInt(stringParts[0]);
-        this.column = Integer.parseInt(stringParts[1]);
-        this.isSkipTurn = Boolean.parseBoolean(stringParts[2]);
-    }
-
-    @Override
-    public String toString() {
-        return this.row + ";" + this.column + ";" + Boolean.toString(this.isSkipTurn);
     }
 
     public int getColumn() {
